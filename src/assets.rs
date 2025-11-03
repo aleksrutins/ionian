@@ -15,12 +15,20 @@ pub fn assets<'a>(
 ) -> Result<Box<dyn Iterator<Item = Result<Box<dyn Task + 'a>>> + 'a>> {
     if log::fatal(fs::exists(&root).map_err(Error::from)) {
         Ok(Box::new(glob(root.join("**/*.*").to_str().unwrap())?.map(
-            move |f| match f {
-                Ok(entry) => Ok(Box::new(CopyAssetTask {
-                    input: entry.clone(),
-                    output: out.join(entry),
-                }) as Box<dyn Task>),
-                Err(e) => Err(e.into()),
+            move |f| {
+                match f {
+                    Ok(entry) => Ok(Box::new(CopyAssetTask {
+                        input: entry.clone(),
+                        output: out.join("assets").join(
+                            entry
+                                .canonicalize()
+                                .unwrap()
+                                .strip_prefix(root.canonicalize().unwrap())
+                                .unwrap_or(&entry),
+                        ),
+                    }) as Box<dyn Task>),
+                    Err(e) => Err(e.into()),
+                }
             },
         )))
     } else {
