@@ -7,14 +7,6 @@ use tera::Tera;
 use crate::{assets::assets, config, hooks, log, task::Task, template};
 
 pub fn compile_all(root: PathBuf, out: PathBuf) -> Result<()> {
-    let tera = match Tera::new(root.join("**/*.html").to_str().unwrap()) {
-        Ok(tera) => tera,
-        Err(e) => {
-            log::error(&format!("parsing error: {:?}", e));
-            exit(1);
-        }
-    };
-
     let config = config::read(&root)?;
     let tasks = hooks::pre_build(&config).collect::<Result<Vec<_>>>()?;
 
@@ -34,6 +26,14 @@ pub fn compile_all(root: PathBuf, out: PathBuf) -> Result<()> {
     }
 
     progress.reset();
+
+    let tera = match Tera::new(root.join("**/*.html").to_str().unwrap()) {
+        Ok(tera) => tera,
+        Err(e) => {
+            log::error(&format!("parsing error: {:?}", e));
+            exit(1);
+        }
+    };
 
     let tasks = assets(root.join("assets"), &out)?
         .chain(template::compile_all(&tera, "pages/", &out))
