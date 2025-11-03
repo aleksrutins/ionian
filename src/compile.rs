@@ -11,7 +11,7 @@ pub fn compile_all(root: PathBuf, out: PathBuf) -> Result<()> {
 
     progress::run(&tasks.pre_build)?;
 
-    let tera = match Tera::new(root.join("**/*.html").to_str().unwrap()) {
+    let tera = match Tera::new(root.join("[!_]**/*.html").to_str().unwrap()) {
         Ok(tera) => tera,
         Err(e) => {
             log::error(&format!("parsing error: {:?}", e));
