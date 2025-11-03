@@ -16,14 +16,31 @@ pub fn compile_all(root: PathBuf, out: PathBuf) -> Result<()> {
     };
 
     let config = config::read(&root)?;
-    let tasks = hooks::pre_build(&config)
-        .chain(assets(root.join("assets"), &out)?)
+    let tasks = hooks::pre_build(&config).collect::<Result<Vec<_>>>()?;
+
+    let progress = ProgressBar::new(tasks.len() as u64);
+
+    progress.set_style(
+        ProgressStyle::with_template("{msg} {wide_bar:.cyan/blue} {pos:>7}/{len:7}")
+            .unwrap()
+            .progress_chars("##-"),
+    );
+
+    for task in tasks {
+        progress.set_message(task.desc());
+        task.run()?;
+        progress.inc(1);
+        progress.tick();
+    }
+
+    progress.reset();
+
+    let tasks = assets(root.join("assets"), &out)?
         .chain(template::compile_all(&tera, "pages/", &out))
         .chain(hooks::post_build(&config))
         .collect::<Result<Vec<_>>>()?;
 
-    let progress = ProgressBar::new(tasks.len() as u64);
-
+    progress.set_length(tasks.len() as u64);
     progress.set_style(
         ProgressStyle::with_template("{msg} {wide_bar:.cyan/blue} {pos:>7}/{len:7}")
             .unwrap()
