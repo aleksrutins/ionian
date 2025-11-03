@@ -10,6 +10,7 @@ mod watch;
 
 pub fn run(root: PathBuf, out: PathBuf, port: u16) -> Result<()> {
     compile::compile_all(root.clone(), out.clone())?;
+    progress::idle("watching files");
 
     progress::bar().println("\x1b[31mdev\x1b[0m starting watcher");
     let mut watcher = watch::watcher(root.clone(), out.clone())?;
