@@ -1,0 +1,40 @@
+{% extends "layouts/index.html" %}
+{% block title %}Install{% endblock title %}
+
+{% block header %}
+<h1>Install</h1>
+
+<p><a href="/">&ShortLeftArrow; Home</a></p>
+{% endblock header %}
+
+{% block content %}
+
+<p>See the <a href="https://github.com/aleksrutins/ionian/releases">releases page</a> for all downloads.</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Command</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Mise (UBI)</td>
+            <td><code>mise use -g ubi:aleksrutins/ionian</code></td>
+        </tr>
+        <tr>
+            <td>Homebrew</td>
+            <td><code>brew install aleksrutins/tap/ionian</code></td>
+        </tr>
+        <tr>
+            <td>Shell (Linux/macOS)</td>
+            <td><code>curl --proto '=https' --tlsv1.2 -LsSf https://github.com/aleksrutins/ionian/releases/download/latest/ionian-installer.sh | sh</code></td>
+        </tr>
+        <tr>
+            <td>PowerShell</td>
+            <td><code>powershell -ExecutionPolicy Bypass -c "irm https://github.com/aleksrutins/ionian/releases/download/v0.2.1/ionian-installer.ps1 | iex"</code></td>
+        </tr>
+    </tbody>
+</table>
+{% endblock content %}

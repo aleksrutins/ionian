@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "shiki": "^3.14.0"
+  },
+  "scripts": {
+    "dev": "cargo run -- dev src -o _build"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.16",
+    "@tailwindcss/typography": "^0.5.19",
+    "tailwindcss": "^4.1.16"
+  }
+}

@@ -1,0 +1,71 @@
+{% extends "layouts/index.html" %}
+
+{% block title %}Home{% endblock title %}
+
+{% block header %}
+<h1>Ionian</h1>
+<ul class="flex flex-row justify-center [&>:first-child]:list-none [&>:not(:first-child)]:ml-6 [&>:not(:first-child)]:pl-0">
+    <li>
+        <a href="/install.html">Install</a>
+    </li>
+    <li>
+        <a href="https://github.com/aleksrutins/ionian">GitHub</a>
+    </li>
+    <li>A project by <a href="https://farthergate.com">Aleks Rutins</a></li>
+</ul>
+{% endblock header %}
+
+{% block content %}
+<p>Ionian is a fast and simple static site generator using <a href="https://keats.github.io/tera/">Tera</a> templates.</p>
+
+<p>Getting started is as simple as creating a <code>pages/index.html</code> file:</p>
+<pre><code class="language-html"><xmp><!DOCTYPE html>
+<html lang="en">
+    <head>
+    	<meta charset="UTF-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    	<title>Hello</title>
+    </head>
+    <body>
+        <h1>Hello World!</h1>
+    </body>
+</html></xmp></code></pre>
+
+<p>And running <code>ionian build</code> to put a built site in `_build`     &mdash; or <code>ionian dev</code> for a ridiculously fast dev server.</p>
+
+<p>Extract the layout into <code>layouts/base.html</code>:</p>
+<pre><code class="language-html"><xmp>{% raw %}<!DOCTYPE html>
+<html lang="en">
+    <head>
+    	<meta charset="UTF-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    	<title>{% block title %}{% endblock title %}</title>
+    </head>
+    <body>
+        {% block content %}{% endblock content %}
+    </body>
+</html>
+{% endraw %}</xmp></code></pre>
+
+And simplify <code>index.html</code>:
+
+<pre><code class="language-html"><xmp>{% raw %}{% extends "layouts/base.html" %}
+{% block title %}Hello{% endblock title %}
+{% block content %}
+<h1>Hello World!</h1>
+{% endblock content %}
+{% endraw %}</xmp></code></pre>
+
+<p class="italic">(For all Tera features, the root for templates is the root directory you specify.)</p>
+
+<p>Add hooks to run external tools:</p>
+<pre><code class="language-toml">[[hooks]]
+name = "tailwind"
+during = "PreBuild"
+dev = {Watch = ["tailwind.css"]}
+command = "bun tailwindcss -i tailwind.css -o assets/app.css 2> /dev/null"
+</code></pre>
+
+<p>And read more in the documentation, which will be coming soon!</p>
+
+{% endblock content %}

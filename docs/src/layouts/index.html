@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/assets/app.css">
+        <script async defer src="/assets/app.bundle.js" type="module"></script>
+        <title>{% block title %}{% endblock title %} | Ionian</title>
+    </head>
+    <body class="w-screen pt-6 p-5">
+        <article class="prose m-auto max-w-2xl mb-6">
+            <header class="flex flex-col items-center text-center *:my-0 gap-2">
+                {% block header %}{% endblock header %}
+            </header>
+            {% block content %}{% endblock content %}
+            <footer>
+                <hr>
+                &copy; {{now() | date(format="%Y")}} Aleks Rutins
+            </footer>
+        </article>
+    </body>
+</html>

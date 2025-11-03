@@ -1,0 +1,11 @@
+[[hooks]]
+name = "tailwind"
+during = "PreBuild"
+dev = {Watch = ["tailwind.css"]}
+command = "bun tailwindcss -i src/tailwind.css -o src/assets/app.css 2> tailwind.log"
+
+[[hooks]]
+name = "bundle"
+during = "PreBuild"
+dev = { Watch = ["src/**/*.ts"] }
+command = "bun build src/js/app.ts --production --outfile src/assets/app.bundle.js > bundle.log"
