@@ -1,5 +1,5 @@
 use std::{
-    fs::{self, FileType},
+    fs,
     path::{Path, PathBuf},
 };
 

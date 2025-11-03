@@ -30,9 +30,10 @@ pub struct Config {
 
 pub fn read(root: &Path) -> Result<Config> {
     if let Ok(true) = fs::exists(root.join("ionian.toml"))
-        && let Ok(s) = fs::read_to_string(root.join("ionian.toml")) {
-            return Ok(toml::from_str(&s)?);
-        }
+        && let Ok(s) = fs::read_to_string(root.join("ionian.toml"))
+    {
+        return Ok(toml::from_str(&s)?);
+    }
 
     Ok(Config { hooks: vec![] })
 }

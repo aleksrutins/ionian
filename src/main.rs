@@ -1,8 +1,12 @@
 mod assets;
 mod compile;
 mod config;
+mod dev;
 mod hooks;
+#[allow(dead_code)]
 mod log;
+mod plan;
+mod progress;
 mod task;
 mod template;
 
@@ -18,8 +22,17 @@ enum Commands {
     Build {
         #[arg(default_value = ".")]
         root: PathBuf,
-        #[arg(short, long, default_value = "./_build")]
+        #[arg(short, long, default_value = "_build")]
         out: PathBuf,
+    },
+
+    Dev {
+        #[arg(default_value = ".")]
+        root: PathBuf,
+        #[arg(short, long, default_value = "_build")]
+        out: PathBuf,
+        #[arg(short, long, default_value = "3000")]
+        port: u16,
     },
 }
 
@@ -34,7 +47,10 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    match args.cmd {
-        Commands::Build { root, out } => log::fatal(compile_all(root, out)),
-    }
+    log::fatal(match args.cmd {
+        Commands::Build { root, out } => compile_all(root, out),
+        Commands::Dev { root, out, port } => dev::run(root, out, port),
+    });
+
+    progress::done();
 }

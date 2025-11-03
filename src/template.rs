@@ -14,8 +14,7 @@ pub fn compile_all<'a>(
     prefix: &'a str,
     out: &'a Path,
 ) -> impl Iterator<Item = Result<Box<dyn Task + 'a>>> + 'a {
-    tera
-        .get_template_names()
+    tera.get_template_names()
         .filter(move |n| n.starts_with(prefix))
         .map(|t| {
             Ok(Box::new(CompileTask {
