@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use anyhow::Result;
-use tera::Tera;
+use tera::{Context, Tera};
 
 use crate::{assets::assets, config::Config, hooks, task::Task, template};
 
@@ -22,7 +22,11 @@ impl<'a> Tasks<'a> {
         })
     }
 
-    pub fn compute_build(&self, tera: &'a Tera) -> Result<Vec<Box<dyn Task + 'a>>> {
+    pub fn compute_build(
+        &self,
+        tera: &'a Tera,
+        context: &mut Context,
+    ) -> Result<Vec<Box<dyn Task + 'a>>> {
         assets(self.root.join("assets"), self.out)?
             .chain(template::compile_all(tera, "pages/", self.out))
             .chain(hooks::post_build(self.config))

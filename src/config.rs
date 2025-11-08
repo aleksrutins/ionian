@@ -1,4 +1,7 @@
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -24,8 +27,15 @@ pub struct Hook {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct ContentCollection {
+    pub name: String,
+    pub out: Option<PathBuf>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
     pub hooks: Vec<Hook>,
+    pub content: Vec<ContentCollection>,
 }
 
 pub fn read(root: &Path) -> Result<Config> {
@@ -35,5 +45,8 @@ pub fn read(root: &Path) -> Result<Config> {
         return Ok(toml::from_str(&s)?);
     }
 
-    Ok(Config { hooks: vec![] })
+    Ok(Config {
+        hooks: vec![],
+        content: vec![],
+    })
 }

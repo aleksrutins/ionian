@@ -16,22 +16,27 @@ pub fn compile_all<'a>(
 ) -> impl Iterator<Item = Result<Box<dyn Task + 'a>>> + 'a {
     tera.get_template_names()
         .filter(move |n| n.starts_with(prefix))
-        .map(|t| {
-            Ok(Box::new(CompileTask {
-                tera,
-                input: t,
-                output: out.join(
-                    t.strip_prefix("pages/")
-                        .ok_or_else(|| anyhow!("malformed input path: {}", t))?,
-                ),
-            }) as Box<dyn Task>)
-        })
+        .map(|t| Ok(Box::new(CompileTask::new(tera, t, out)?) as Box<dyn Task>))
 }
 
 pub struct CompileTask<'a> {
     pub tera: &'a Tera,
     pub input: &'a str,
     pub output: PathBuf,
+}
+
+impl<'a> CompileTask<'a> {
+    pub fn new(tera: &'a Tera, template: &'a str, out: &'a Path) -> Result<Self> {
+        Ok(CompileTask {
+            tera,
+            input: template,
+            output: out.join(
+                template
+                    .strip_prefix("pages/")
+                    .ok_or_else(|| anyhow!("malformed input path: {}", t))?,
+            ),
+        })
+    }
 }
 
 impl<'a> Task for CompileTask<'a> {

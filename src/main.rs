@@ -1,6 +1,7 @@
 mod assets;
 mod compile;
 mod config;
+mod content;
 mod dev;
 mod hooks;
 #[allow(dead_code)]
