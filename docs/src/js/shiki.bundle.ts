@@ -5,14 +5,36 @@ import type {
   HighlighterGeneric,
 } from '@shikijs/types'
 import {
+  createBundledHighlighter,
   createSingletonShorthands,
-  createdBundledHighlighter,
 } from '@shikijs/core'
 import { createJavaScriptRegexEngine } from '@shikijs/engine-javascript'
 
 type BundledLanguage =
+  | 'markdown'
+  | 'md'
   | 'jinja'
   | 'toml'
+  | 'shellscript'
+  | 'bash'
+  | 'sh'
+  | 'shell'
+  | 'zsh'
+  | 'shellscript'
+  | 'bash'
+  | 'sh'
+  | 'shell'
+  | 'zsh'
+  | 'shellscript'
+  | 'bash'
+  | 'sh'
+  | 'shell'
+  | 'zsh'
+  | 'shellscript'
+  | 'bash'
+  | 'sh'
+  | 'shell'
+  | 'zsh'
   | 'shellscript'
   | 'bash'
   | 'sh'
@@ -23,8 +45,30 @@ type BundledTheme = 'rose-pine' | 'rose-pine-dawn'
 type Highlighter = HighlighterGeneric<BundledLanguage, BundledTheme>
 
 const bundledLanguages = {
+  markdown: () => import('@shikijs/langs/markdown'),
+  md: () => import('@shikijs/langs/markdown'),
   jinja: () => import('@shikijs/langs/jinja'),
   toml: () => import('@shikijs/langs/toml'),
+  shellscript: () => import('@shikijs/langs/shellscript'),
+  bash: () => import('@shikijs/langs/shellscript'),
+  sh: () => import('@shikijs/langs/shellscript'),
+  shell: () => import('@shikijs/langs/shellscript'),
+  zsh: () => import('@shikijs/langs/shellscript'),
+  shellscript: () => import('@shikijs/langs/shellscript'),
+  bash: () => import('@shikijs/langs/shellscript'),
+  sh: () => import('@shikijs/langs/shellscript'),
+  shell: () => import('@shikijs/langs/shellscript'),
+  zsh: () => import('@shikijs/langs/shellscript'),
+  shellscript: () => import('@shikijs/langs/shellscript'),
+  bash: () => import('@shikijs/langs/shellscript'),
+  sh: () => import('@shikijs/langs/shellscript'),
+  shell: () => import('@shikijs/langs/shellscript'),
+  zsh: () => import('@shikijs/langs/shellscript'),
+  shellscript: () => import('@shikijs/langs/shellscript'),
+  bash: () => import('@shikijs/langs/shellscript'),
+  sh: () => import('@shikijs/langs/shellscript'),
+  shell: () => import('@shikijs/langs/shellscript'),
+  zsh: () => import('@shikijs/langs/shellscript'),
   shellscript: () => import('@shikijs/langs/shellscript'),
   bash: () => import('@shikijs/langs/shellscript'),
   sh: () => import('@shikijs/langs/shellscript'),
@@ -38,7 +82,7 @@ const bundledThemes = {
   'rose-pine-dawn': () => import('@shikijs/themes/rose-pine-dawn'),
 } as Record<BundledTheme, DynamicImportThemeRegistration>
 
-const createHighlighter = /* @__PURE__ */ createdBundledHighlighter<
+const createHighlighter = /* @__PURE__ */ createBundledHighlighter<
   BundledLanguage,
   BundledTheme
 >({

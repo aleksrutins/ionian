@@ -4,11 +4,14 @@
   },
   "scripts": {
     "dev": "cargo run -- dev src -o _build",
-    "build": "cargo run -- build src -o _build"
+    "dev-prod": "ionian dev src -o _build",
+    "build": "cargo run -- build src -o _build",
+    "shiki": "shiki-codegen --langs markdown,jinja,toml,shellscript,bash,sh,shell,zsh,html --themes rose-pine,rose-pine-dawn --engine javascript src/js/shiki.bundle.ts"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.16",
     "@tailwindcss/typography": "^0.5.19",
+    "shiki-codegen": "^4.5.0",
     "tailwindcss": "^4.1.16"
   }
 }

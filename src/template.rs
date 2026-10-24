@@ -1,5 +1,6 @@
 use std::{
     fs::File,
+    io::Write,
     path::{Path, PathBuf},
 };
 
@@ -30,11 +31,13 @@ impl<'a> CompileTask<'a> {
         Ok(CompileTask {
             tera,
             input: template,
-            output: out.join(
-                template
-                    .strip_prefix("pages/")
-                    .ok_or_else(|| anyhow!("malformed input path: {}", t))?,
-            ),
+            output: out
+                .join(
+                    template
+                        .strip_prefix("pages/")
+                        .ok_or_else(|| anyhow!("malformed input path: {}", template))?,
+                )
+                .with_extension("html"),
         })
     }
 }

@@ -1,2 +1,12 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+header img {
+    @apply p-0 !m-0 dark:invert;
+    width: 133.647058824px;
+    height: 32px;
+}
+
+header ul {
+    @apply flex flex-row justify-center p-0 *:first:list-none *:first:p-0 [&>:not(:first-child)]:ml-5.5 [&>:not(:first-child)]:pl-0;
+}

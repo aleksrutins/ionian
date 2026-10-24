@@ -11,9 +11,13 @@
     <body class="w-screen pt-6 p-5 dark:bg-[#090704]">
         <article class="prose dark:prose-invert m-auto max-w-2xl mb-6">
             <header class="flex flex-col items-center text-center *:my-0 gap-2">
+                {% <ionian.markdown> %}
                 {% block header %}{% endblock header %}
+                {% </ionian.markdown> %}
             </header>
+            {% <ionian.markdown> %}
             {% block content %}{% endblock content %}
+            {% </ionian.markdown> %}
             <footer class="text-center">
                 <hr>
                 &copy; {{now() | date(format="%Y")}} <a href="https://farthergate.com">Aleks Rutins</a>
