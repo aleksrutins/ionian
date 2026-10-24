@@ -48,13 +48,12 @@ And simplify `index.html` into `index.md`:
 
 ```md
 {% raw %}{% extends "layouts/base.html" %}
+
 {% block title %}Hello{% endblock title %}
+
 {% block content %}
-{% <ionian.markdown> %}
 # Hello World!
-{% </ionian.markdown> %}
-{% endblock content %}
-{% endraw %}
+{% endblock content %}{% endraw %}
 ```
 
 (For all Tera features, the root for templates is the root directory you specify.)
