@@ -31,11 +31,11 @@ fn markdown_filter(kwargs: Kwargs, _: &State) -> TeraResult<Value> {
     .map_err(|e| Error::message(e.reason))?)
 }
 
-pub fn compile_all(root: PathBuf, out: PathBuf) -> Result<()> {
+pub fn compile_all(root: PathBuf, out: PathBuf, print_list: bool) -> Result<()> {
     let config = config::read(&root)?;
     let tasks = Tasks::compute(&config, &root, &out)?;
 
-    progress::run(&tasks.pre_build)?;
+    progress::run(&tasks.pre_build, print_list)?;
 
     let mut context = Context::new();
 
@@ -70,7 +70,7 @@ pub fn compile_all(root: PathBuf, out: PathBuf) -> Result<()> {
 
     let build = tasks.compute_build(&tera, &mut context)?;
 
-    progress::run(&build)?;
+    progress::run(&build, print_list)?;
 
     Ok(())
 }

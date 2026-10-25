@@ -13,6 +13,7 @@ mod template;
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
+use console::Term;
 
 use crate::compile::compile_all;
 
@@ -48,7 +49,7 @@ fn main() {
     let args = Args::parse();
 
     log::fatal(match args.cmd {
-        Commands::Build { root, out } => compile_all(root, out),
+        Commands::Build { root, out } => compile_all(root, out, !Term::stdout().is_term()),
         Commands::Dev { root, out, port } => dev::run(root, out, port),
     });
 

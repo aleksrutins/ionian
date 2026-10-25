@@ -4,7 +4,7 @@ use anyhow::Result;
 use indicatif::{ProgressBar, ProgressStyle};
 use lazy_static::lazy_static;
 
-use crate::task::Task;
+use crate::{log, task::Task};
 
 lazy_static! {
     static ref PROGRESS: ProgressBar = {
@@ -19,18 +19,26 @@ lazy_static! {
     };
 }
 
-pub fn run<'a>(tasks: &'a [Box<dyn Task + 'a>]) -> Result<()> {
+pub fn run<'a>(tasks: &'a [Box<dyn Task + 'a>], print_list: bool) -> Result<()> {
     PROGRESS.set_position(0);
     PROGRESS.set_length(tasks.len() as u64);
 
+    if print_list {
+        println!("𜸛 build")
+    }
     for task in tasks {
         PROGRESS.set_message(task.desc());
         task.run()?;
         PROGRESS.inc(1);
-        PROGRESS.tick();
+        if print_list {
+            println!("𜸨 {}", task.desc())
+        }
     }
 
     PROGRESS.reset();
+    if print_list {
+        println!("𜸽 done \u{1F389}")
+    }
     Ok(())
 }
 

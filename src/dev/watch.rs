@@ -38,7 +38,7 @@ pub fn watcher(root: PathBuf, out: PathBuf) -> Result<notify::RecommendedWatcher
                     return;
                 }
 
-                compile::compile_all(root.clone(), out.clone())
+                compile::compile_all(root.clone(), out.clone(), false)
                     .unwrap_or_else(|e| log::error(&format!("error in build: {:?}", e)));
 
                 progress::idle("watching files");
