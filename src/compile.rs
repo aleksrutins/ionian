@@ -58,7 +58,7 @@ pub fn compile_all(root: PathBuf, out: PathBuf) -> Result<()> {
 
     if let Err(e) = tera.load_from_glob(root.join("**/*.{html,md}").to_str().unwrap()) {
         log::error(&format!("parsing error: {:?}", e));
-        exit(1);
+        return Err(anyhow!(e));
     }
 
     let build = tasks.compute_build(&tera, &mut context)?;
