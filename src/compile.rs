@@ -1,7 +1,7 @@
 use std::{path::PathBuf, process::exit};
 
 use anyhow::{Result, anyhow};
-use markdown::Options;
+use markdown::{CompileOptions, Options};
 use tera::{Context, Error, Kwargs, State, Tera, TeraResult, Value};
 use tera_contrib::{
     base64::{b64_decode, b64_encode},
@@ -18,7 +18,14 @@ fn markdown_filter(kwargs: Kwargs, _: &State) -> TeraResult<Value> {
         kwargs
             .get("body")?
             .ok_or(Error::message("expected markdown to receive body"))?,
-        &Options::gfm(),
+        &Options {
+            compile: CompileOptions {
+                allow_dangerous_html: true,
+                allow_dangerous_protocol: true,
+                ..CompileOptions::gfm()
+            },
+            ..Options::gfm()
+        },
     )
     .map(|s| Value::safe_string(&s))
     .map_err(|e| Error::message(e.reason))?)
