@@ -13,24 +13,6 @@ use tera_contrib::{
 
 use crate::{config, log, plan::Tasks, progress};
 
-fn markdown_filter(kwargs: Kwargs, _: &State) -> TeraResult<Value> {
-    Ok(markdown::to_html_with_options(
-        kwargs
-            .get("body")?
-            .ok_or(Error::message("expected markdown to receive body"))?,
-        &Options {
-            compile: CompileOptions {
-                allow_dangerous_html: true,
-                allow_dangerous_protocol: true,
-                ..CompileOptions::gfm()
-            },
-            ..Options::gfm()
-        },
-    )
-    .map(|s| Value::safe_string(&s))
-    .map_err(|e| Error::message(e.reason))?)
-}
-
 pub fn compile_all(root: PathBuf, out: PathBuf, print_list: bool) -> Result<()> {
     let config = config::read(&root)?;
     let tasks = Tasks::compute(&config, &root, &out)?;
@@ -39,6 +21,21 @@ pub fn compile_all(root: PathBuf, out: PathBuf, print_list: bool) -> Result<()> 
 
     let mut context = Context::new();
 
+    let mut tera = create_tera();
+
+    if let Err(e) = tera.load_from_glob(root.join("**/*.{html,md}").to_str().unwrap()) {
+        log::error(&format!("parsing error: {:?}", e));
+        return Err(anyhow!(e));
+    }
+
+    let build = tasks.compute_build(&tera, &mut context)?;
+
+    progress::run(&build, print_list)?;
+
+    Ok(())
+}
+
+fn create_tera() -> Tera {
     let mut tera = Tera::default();
     tera.autoescape_on(Vec::<&str>::new());
     tera.register_filter("date", dates::date);
@@ -63,14 +60,23 @@ pub fn compile_all(root: PathBuf, out: PathBuf, print_list: bool) -> Result<()> 
     )
     .unwrap();
 
-    if let Err(e) = tera.load_from_glob(root.join("**/*.{html,md}").to_str().unwrap()) {
-        log::error(&format!("parsing error: {:?}", e));
-        return Err(anyhow!(e));
-    }
+    tera
+}
 
-    let build = tasks.compute_build(&tera, &mut context)?;
-
-    progress::run(&build, print_list)?;
-
-    Ok(())
+fn markdown_filter(kwargs: Kwargs, _: &State) -> TeraResult<Value> {
+    Ok(markdown::to_html_with_options(
+        kwargs
+            .get("body")?
+            .ok_or(Error::message("expected markdown to receive body"))?,
+        &Options {
+            compile: CompileOptions {
+                allow_dangerous_html: true,
+                allow_dangerous_protocol: true,
+                ..CompileOptions::gfm()
+            },
+            ..Options::gfm()
+        },
+    )
+    .map(|s| Value::safe_string(&s))
+    .map_err(|e| Error::message(e.reason))?)
 }
