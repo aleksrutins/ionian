@@ -63,3 +63,43 @@ impl<'a> Task for RunHookTask<'a> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{post_build, pre_build};
+    use crate::config::{Config, Dev, During, Hook};
+
+    fn config() -> Config {
+        Config {
+            hooks: vec![
+                Hook {
+                    name: "before".into(),
+                    during: During::PreBuild,
+                    dev: Dev::Disabled,
+                    command: "true".into(),
+                },
+                Hook {
+                    name: "after".into(),
+                    during: During::PostBuild,
+                    dev: Dev::Disabled,
+                    command: "true".into(),
+                },
+            ],
+            collections: vec![],
+        }
+    }
+
+    #[test]
+    fn selects_hooks_by_build_phase() {
+        let config = config();
+        let pre = pre_build(&config)
+            .map(|task| task.unwrap().desc())
+            .collect::<Vec<_>>();
+        let post = post_build(&config)
+            .map(|task| task.unwrap().desc())
+            .collect::<Vec<_>>();
+
+        assert_eq!(pre, vec!["before"]);
+        assert_eq!(post, vec!["after"]);
+    }
+}

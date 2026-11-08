@@ -24,7 +24,7 @@ pub fn compile_all(root: PathBuf, out: PathBuf, print_list: bool) -> Result<()> 
     let mut tera = create_tera();
 
     if let Err(e) = tera.load_from_glob(
-        root.join("**/{layouts,partials,pages}/**/*.{html,md}")
+        root.join("**/*.{html,md,xml,tera}")
             .to_str()
             .ok_or_else(|| anyhow!("invalid template path"))?,
     ) {
@@ -84,4 +84,24 @@ fn markdown_filter(kwargs: Kwargs, _: &State) -> TeraResult<Value> {
     )
     .map(|s| Value::safe_string(&s))
     .map_err(|e| Error::message(e.reason))?)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::create_tera;
+    use tera::Context;
+
+    #[test]
+    fn markdown_function_renders_gfm_markdown() {
+        let mut tera = create_tera();
+        tera.add_raw_template("test.html", "{{ markdown(body=body) }}")
+            .unwrap();
+        let mut context = Context::new();
+        context.insert("body", &"# Hello\n\nA **bold** statement.");
+
+        let rendered = tera.render("test.html", &context).unwrap();
+
+        assert!(rendered.contains("<h1>Hello</h1>"));
+        assert!(rendered.contains("<strong>bold</strong>"));
+    }
 }

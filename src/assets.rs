@@ -56,3 +56,46 @@ impl Task for CopyAssetTask {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::assets;
+    use std::{
+        fs,
+        path::PathBuf,
+        time::{SystemTime, UNIX_EPOCH},
+    };
+
+    fn temp_dir(name: &str) -> PathBuf {
+        std::env::temp_dir().join(format!(
+            "ionian-{name}-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ))
+    }
+
+    #[test]
+    fn copies_nested_assets_to_the_assets_output() {
+        let root = temp_dir("assets");
+        let out = temp_dir("assets-out");
+        fs::create_dir_all(root.join("nested")).unwrap();
+        fs::write(root.join("nested/style.css"), "body {}").unwrap();
+
+        let tasks = assets(root.clone(), &out)
+            .unwrap()
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap();
+        assert_eq!(tasks.len(), 1);
+        tasks[0].run().unwrap();
+        assert_eq!(
+            fs::read_to_string(out.join("assets/nested/style.css")).unwrap(),
+            "body {}"
+        );
+
+        drop(tasks);
+        fs::remove_dir_all(root).unwrap();
+        fs::remove_dir_all(out).unwrap();
+    }
+}

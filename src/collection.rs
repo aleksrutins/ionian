@@ -143,6 +143,7 @@ impl Task for RenderCollectionTask<'_> {
     }
 }
 
+#[derive(Debug)]
 struct ParsedFrontmatter {
     context: Context,
     value: Value,
@@ -237,4 +238,56 @@ enum FrontmatterFormat {
     Yaml,
     Toml,
     Json,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_frontmatter;
+    use std::path::Path;
+
+    #[test]
+    fn parses_yaml_frontmatter_and_body() {
+        let parsed = parse_frontmatter("---\ntitle: Hello\n---\nBody", Path::new("post.md"))
+            .expect("frontmatter should parse");
+
+        assert_eq!(
+            parsed.context.get("title").and_then(|value| value.as_str()),
+            Some("Hello")
+        );
+        assert_eq!(parsed.body.as_deref(), Some("Body"));
+    }
+
+    #[test]
+    fn parses_plain_json_without_a_body() {
+        let parsed = parse_frontmatter(r#"{"title":"Hello"}"#, Path::new("item.json"))
+            .expect("JSON should parse");
+
+        assert_eq!(
+            parsed.context.get("title").and_then(|value| value.as_str()),
+            Some("Hello")
+        );
+        assert!(parsed.body.is_none());
+    }
+
+    #[test]
+    fn parses_plain_yaml_and_toml_without_bodies() {
+        for (path, source) in [
+            ("item.yaml", "title: YAML"),
+            ("item.toml", "title = \"TOML\""),
+        ] {
+            let parsed =
+                parse_frontmatter(source, Path::new(path)).expect("data file should parse");
+
+            assert!(parsed.body.is_none());
+            assert!(parsed.context.get("title").is_some());
+        }
+    }
+
+    #[test]
+    fn rejects_markdown_without_frontmatter() {
+        let error = parse_frontmatter("Body", Path::new("post.md"))
+            .expect_err("missing frontmatter should fail");
+
+        assert!(error.to_string().contains("no frontmatter"));
+    }
 }

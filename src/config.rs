@@ -50,3 +50,16 @@ pub fn read(root: &Path) -> Result<Config> {
         collections: vec![],
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Config;
+
+    #[test]
+    fn missing_optional_sections_default_to_empty() {
+        let config: Config = toml::from_str("").expect("empty config should parse");
+
+        assert!(config.hooks.is_empty());
+        assert!(config.collections.is_empty());
+    }
+}
