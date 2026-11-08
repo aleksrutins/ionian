@@ -23,7 +23,11 @@ pub fn compile_all(root: PathBuf, out: PathBuf, print_list: bool) -> Result<()> 
 
     let mut tera = create_tera();
 
-    if let Err(e) = tera.load_from_glob(root.join("**/*.{html,md}").to_str().unwrap()) {
+    if let Err(e) = tera.load_from_glob(
+        root.join("**/{layouts,partials,pages}/**/*.{html,md}")
+            .to_str()
+            .ok_or_else(|| anyhow!("invalid template path"))?,
+    ) {
         log::error(&format!("parsing error: {:?}", e));
         return Err(anyhow!(e));
     }

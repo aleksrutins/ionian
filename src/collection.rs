@@ -19,6 +19,7 @@ struct ContentEntry {
 }
 
 pub fn register_globals(collections: &[Collection], root: &Path, tera: &mut Tera) -> Result<()> {
+    let root = root.canonicalize()?;
     let mut content = std::collections::BTreeMap::new();
 
     for collection in collections {
@@ -39,7 +40,7 @@ pub fn register_globals(collections: &[Collection], root: &Path, tera: &mut Tera
             }
 
             let relative = input
-                .strip_prefix(root)
+                .strip_prefix(&root)
                 .map_err(|_| anyhow!("collection file is outside site root: {:?}", input))?;
             let source = fs::read_to_string(&input)?;
             let frontmatter = parse_frontmatter(&source, &input)?;
@@ -61,6 +62,7 @@ pub fn compile_all<'a>(
     out: &'a Path,
     tera: &'a Tera,
 ) -> Result<Box<dyn Iterator<Item = Result<Box<dyn Task + 'a>>> + 'a>> {
+    let root = root.canonicalize()?;
     let mut tasks = Vec::new();
 
     for collection in collections {
@@ -74,7 +76,7 @@ pub fn compile_all<'a>(
             if input.is_file() {
                 tasks.push(Box::new(RenderCollectionTask::new(
                     input,
-                    root,
+                    &root,
                     out,
                     &collection.render,
                     tera,
@@ -132,7 +134,7 @@ impl Task for RenderCollectionTask<'_> {
         self.tera.render_component_to(
             self.render,
             &frontmatter.context,
-            Some(&frontmatter.body),
+            frontmatter.body.as_deref(),
             false,
             &mut output,
         )?;
@@ -144,10 +146,14 @@ impl Task for RenderCollectionTask<'_> {
 struct ParsedFrontmatter {
     context: Context,
     value: Value,
-    body: String,
+    body: Option<String>,
 }
 
 fn parse_frontmatter(source: &str, path: &Path) -> Result<ParsedFrontmatter> {
+    if let Some(format) = plain_data_format(path) {
+        return parse_data(source, format);
+    }
+
     let (delimiter, format) = if source.starts_with("---") {
         ("---", FrontmatterFormat::Yaml)
     } else if source.starts_with("+++") {
@@ -174,7 +180,7 @@ fn parse_frontmatter(source: &str, path: &Path) -> Result<ParsedFrontmatter> {
             Ok(ParsedFrontmatter {
                 context: Context::from_serialize(&value)?,
                 value: Value::try_from_serializable(&value)?,
-                body,
+                body: Some(body),
             })
         }
         FrontmatterFormat::Toml => {
@@ -182,13 +188,53 @@ fn parse_frontmatter(source: &str, path: &Path) -> Result<ParsedFrontmatter> {
             Ok(ParsedFrontmatter {
                 context: Context::from_serialize(&value)?,
                 value: Value::try_from_serializable(&value)?,
-                body,
+                body: Some(body),
             })
         }
+        FrontmatterFormat::Json => bail!("JSON content must use a plain data file"),
+    }
+}
+
+fn parse_data(source: &str, format: FrontmatterFormat) -> Result<ParsedFrontmatter> {
+    match format {
+        FrontmatterFormat::Yaml => {
+            let value = serde_yaml::from_str::<serde_yaml::Value>(source)?;
+            Ok(ParsedFrontmatter {
+                context: Context::from_serialize(&value)?,
+                value: Value::try_from_serializable(&value)?,
+                body: None,
+            })
+        }
+        FrontmatterFormat::Toml => {
+            let value = toml::from_str::<toml::Value>(source)?;
+            Ok(ParsedFrontmatter {
+                context: Context::from_serialize(&value)?,
+                value: Value::try_from_serializable(&value)?,
+                body: None,
+            })
+        }
+        FrontmatterFormat::Json => {
+            let value = serde_json::from_str::<serde_json::Value>(source)?;
+            Ok(ParsedFrontmatter {
+                context: Context::from_serialize(&value)?,
+                value: Value::try_from_serializable(&value)?,
+                body: None,
+            })
+        }
+    }
+}
+
+fn plain_data_format(path: &Path) -> Option<FrontmatterFormat> {
+    match path.extension()?.to_str()? {
+        "json" => Some(FrontmatterFormat::Json),
+        "toml" => Some(FrontmatterFormat::Toml),
+        "yaml" | "yml" => Some(FrontmatterFormat::Yaml),
+        _ => None,
     }
 }
 
 enum FrontmatterFormat {
     Yaml,
     Toml,
+    Json,
 }
