@@ -37,7 +37,7 @@ impl<'a> CompileTask<'a> {
                         .strip_prefix("pages/")
                         .ok_or_else(|| anyhow!("malformed input path: {}", template))?,
                 )
-                .with_extension(if out.extension().unwrap_or_default() == "xml" { "xml" } else { "html" }),
+                .with_extension(if template.ends_with(".xml") { "xml" } else { "html" }),
         })
     }
 }
