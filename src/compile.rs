@@ -11,7 +11,7 @@ use tera_contrib::{
     urlencode::urlencode,
 };
 
-use crate::{config, log, plan::Tasks, progress};
+use crate::{collection, config, log, plan::Tasks, progress};
 
 pub fn compile_all(root: PathBuf, out: PathBuf, print_list: bool) -> Result<()> {
     let config = config::read(&root)?;
@@ -27,6 +27,7 @@ pub fn compile_all(root: PathBuf, out: PathBuf, print_list: bool) -> Result<()> 
         log::error(&format!("parsing error: {:?}", e));
         return Err(anyhow!(e));
     }
+    collection::register_globals(&config.collections, &root, &mut tera)?;
 
     let build = tasks.compute_build(&tera, &mut context)?;
 

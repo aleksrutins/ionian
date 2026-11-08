@@ -1,4 +1,5 @@
 mod assets;
+mod collection;
 mod compile;
 mod config;
 mod dev;

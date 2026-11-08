@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Result;
 use tera::{Context, Tera};
 
-use crate::{assets::assets, config::Config, hooks, task::Task, template};
+use crate::{assets::assets, collection, config::Config, hooks, task::Task, template};
 
 pub struct Tasks<'a> {
     pub pre_build: Vec<Box<dyn Task + 'a>>,
@@ -29,6 +29,12 @@ impl<'a> Tasks<'a> {
     ) -> Result<Vec<Box<dyn Task + 'a>>> {
         assets(self.root.join("assets"), self.out)?
             .chain(template::compile_all(tera, "pages/", self.out))
+            .chain(collection::compile_all(
+                &self.config.collections,
+                self.root,
+                self.out,
+                tera,
+            )?)
             .chain(hooks::post_build(self.config))
             .collect::<Result<Vec<_>>>()
     }
